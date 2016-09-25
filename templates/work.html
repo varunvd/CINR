@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>World Map </title>
+<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+</head>
+<body>
+<script src="../static/d3.v3.min.js"></script>
+<script src="../static/topojson.v1.min.js"></script>
+<script type="text/javascript" src="../static/check_it.js"></script>
+<div class="navbar navbar-inverse" role="navigation">
+    <div class="container">
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/values">Comparison  with INR</a>
+        </div>
+       
+    </div>
+</div>
+<div id="container" style="position: relative; width: 1440; height: 700px;"></div>
+<script>
+working_on()
+function working_on(){
+    d3.csv("../static/result.csv", function(error, csvdata1){
+      for(var i=0; i<csvdata1.length; i++)
+      {
+        csvdata1[i].visualizedMeasure = 'In comparison with INR ' + csvdata1[i].thisvalue;
+      }
+         for(var i=0; i<csvdata1.length; i++)
+      {
+      	csvdata1[i].fillKey = {}
+      	if(csvdata1[i].thisvalue=="")
+      		csvdata1[i].fillKey = "no"
+      	if(0<=parseInt(csvdata1[i].thisvalue))
+      		csvdata1[i].fillKey = "yellow"
+      	if(1<=parseInt(csvdata1[i].thisvalue) && parseInt(csvdata1[i].thisvalue) <20)
+      		csvdata1[i].fillKey ="red"
+      	if(50>parseInt(csvdata1[i].thisvalue))
+      		csvdata1[i].fillKey = "red"
+      	if(parseInt(csvdata1[i].thisvalue)>=50 && parseInt(csvdata1[i].thisvalue)<=100)
+      		csvdata1[i].fillKey = "lime"
+      	if(parseInt(csvdata1[i].thisvalue)>=20 && parseInt(csvdata1[i].thisvalue)<30)
+      		csvdata1[i].fillKey = "yellow"
+      }
+      for(var i=0; i<csvdata1.length; i++)
+      {
+        csvdata1[csvdata1[i].ISO]=csvdata1[i];
+        console.log(csvdata1[i].ISO);
+        delete csvdata1[i].ISO;
+        console.log(csvdata1[i].ISO);
+        delete csvdata1[i];
+      }
+      map.updateChoropleth(csvdata1);
+    });
+}
+    var map = new Datamap({
+      element: document.getElementById('container'),
+      scope : 'world',
+      projection : 'equirectangular',
+      fills : {
+      	'no': '#F0E68C',
+      	'lime' : '#00FF00',
+      	'yellow' : '#FFFF00',
+      	'red' : '#FF0000',
+      	'asdf' : '#990000',
+      	'average' : '#00BFFF'
+      },
+    geographyConfig : {
+        popupTemplate : function(geography, csvdata1){
+          return '<div class="hoverinfo">' + geography.properties.name + '</br>'  + csvdata1.visualizedMeasure 
+        }
+      }
+    });
+</script>
+</body>
+</html>
